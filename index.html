@@ -3,305 +3,481 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Simple Ticketing System</title>
+<title>ROYPow Ticketing System</title>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    max-width: 700px;
-    margin: 20px auto;
-    background-color: #f5f5f5;
-    color: #333;
-  }
-
-  #login-section,
-  #dashboard {
-    border: 1px solid #ddd;
-    padding: 20px;
-    border-radius: 5px;
-    background-color: white;
-  }
-
-  h2 {
-    margin-top: 0;
-  }
-
-  input[type=text],
-  input[type=password] {
-    width: 100%;
-    padding: 10px;
-    margin: 6px 0 12px 0;
+  * {
     box-sizing: border-box;
   }
-
-  button {
-    padding: 10px 15px;
-    background-color: #007BFF;
+  body, html {
+    margin: 0; padding: 0; height: 100%;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     color: white;
+    background: linear-gradient(135deg, #222, #111);
+  }
+  #login-section {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  #login-section h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    user-select: none;
+    letter-spacing: 8px;
+  }
+  #login-form {
+    width: 280px;
+  }
+  #login-form label {
+    display: block;
+    font-size: 0.85rem;
+    margin-bottom: 0.2rem;
+    text-align: left;
+  }
+  #login-form input[type="text"],
+  #login-form input[type="password"] {
+    width: 100%;
+    padding: 0.5rem 0.6rem;
+    margin-bottom: 1rem;
+    border: none;
+    border-radius: 3px;
+  }
+  #login-form button {
+    width: 100%;
+    background-color: #0b5ed7;
+    padding: 0.5rem;
     border: none;
     border-radius: 3px;
     cursor: pointer;
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+  }
+  #login-form button:hover {
+    background-color: #074db3;
+  }
+  #login-error {
+    color: #ff4d4d;
+    margin-top: 0.5rem;
+    height: 1.2rem;
+    font-size: 0.9rem;
   }
 
-  button:hover {
-    background-color: #0056b3;
+  #dashboard {
+    background-color: #111;
+    min-height: 100vh;
+    padding: 2rem 3rem 4rem 3rem;
+    display: none;
+    position: relative;
+    color: white;
+  }
+  #dashboard h2 {
+    margin-top: 0;
+    font-weight: 700;
+  }
+  #dashboard p.welcome-text {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  #logout-btn {
+    position: absolute;
+    right: 30px;
+    top: 30px;
+    background-color: #c62828;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 3px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    color: white;
+  }
+  #logout-btn:hover {
+    background-color: #9e1e1e;
   }
 
+  #tickets-container {
+    overflow-x: auto;
+    margin-top: 1rem;
+  }
   table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 15px;
   }
-
-  th,
-  td {
+  thead th {
+    border-bottom: 2px solid #444;
+    padding: 0.5rem 0.8rem;
+    font-weight: 600;
+    font-size: 0.9rem;
     text-align: left;
-    padding: 8px;
-    border-bottom: 1px solid #ddd;
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    border-bottom: 1px solid #333;
+    white-space: nowrap;
   }
 
-  .status {
-    font-weight: bold;
-    padding: 2px 8px;
-    border-radius: 4px;
-    color: white;
-    display: inline-block;
-    text-transform: capitalize;
-  }
-
-  .status.open {
-    background-color: #28a745;
-  }
-
-  .status.in-progress {
-    background-color: #ffc107;
-    color: black;
-  }
-
-  .status.closed {
-    background-color: #6c757d;
-  }
-
-  #logout-btn {
-    float: right;
-    background-color: #dc3545;
-  }
-
-  /* Dark theme for admin */
-  body.admin-mode {
-    background-color: #121212;
+  /* Ticket creation form for admin */
+  #ticket-create-form {
+    margin-top: 2rem;
+    background: #222;
+    padding: 1rem 1.5rem;
+    border-radius: 6px;
+    max-width: 900px;
     color: #eee;
   }
-
-  body.admin-mode #dashboard,
-  body.admin-mode #login-section {
-    background-color: #1e1e1e;
-    border-color: #444;
+  #ticket-create-form h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-weight: 700;
   }
-
-  body.admin-mode table th,
-  body.admin-mode table td {
-    border-color: #444;
+  #ticket-create-form label {
+    display: block;
+    margin-top: 0.8rem;
+    font-weight: 600;
   }
-
-  body.admin-mode button {
-    background-color: #1f6feb;
+  #ticket-create-form input[type="text"],
+  #ticket-create-form select,
+  #ticket-create-form input[type="date"] {
+    width: 100%;
+    padding: 0.35rem 0.4rem;
+    border-radius: 3px;
+    border: none;
+    margin-top: 0.15rem;
+    font-size: 0.9rem;
+    color: black;
   }
-
-  body.admin-mode button:hover {
-    background-color: #1158c7;
+  #ticket-create-form .row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+  #ticket-create-form button {
+    margin-top: 1rem;
+    background-color: #0b5ed7;
+    padding: 0.6rem 1rem;
+    border-radius: 4px;
+    color: white;
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  #ticket-create-form button:hover {
+    background-color: #074db3;
+  }
+  #ticket-create-error {
+    color: #ff4d4d;
+    margin-top: 0.4rem;
+    font-weight: 600;
+    min-height: 1.2rem;
   }
 </style>
 </head>
 <body>
 
-<div id="login-section">
-  <h2>Login</h2>
-  <form id="login-form">
-    <label>Username:</label>
+<div id="login-section" role="main">
+  <h1>ROYPOW</h1>
+  <form id="login-form" aria-label="Login Form">
+    <label for="username">Username</label>
     <input type="text" id="username" autocomplete="username" required />
-    <label>Password:</label>
+    <label for="password">Password</label>
     <input type="password" id="password" autocomplete="current-password" required />
     <button type="submit">Login</button>
   </form>
-  <p id="login-error" style="color: red;"></p>
+  <p id="login-error" aria-live="polite"></p>
 </div>
 
-<div id="dashboard" style="display:none;">
-  <h2>User Dashboard <button id="logout-btn">Logout</button></h2>
-  <p>Welcome, <span id="display-username"></span>! (<span id="display-role"></span>)</p>
+<div id="dashboard" role="main" aria-label="User Dashboard">
+  <button id="logout-btn" aria-label="Logout">Logout</button>
+  <h2>User Dashboard</h2>
+  <p class="welcome-text" id="welcome-msg"></p>
 
-  <h3 id="tickets-title">Your Tickets</h3>
-  <table id="tickets-table" aria-label="Tickets">
-    <thead>
-      <tr>
-        <th>Ticket ID</th>
-        <th>User</th>
-        <th>Title</th>
-        <th>Status</th>
-        <th id="actions-header" style="display:none;">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Tickets injected here -->
-    </tbody>
-  </table>
+  <h3>Your Tickets</h3>
+  <div id="tickets-container">
+    <table id="tickets-table" aria-label="Tickets Table">
+      <thead>
+        <tr>
+          <th>Service Order Number</th>
+          <th>Status</th>
+          <th>Service Type</th>
+          <th>Product</th>
+          <th>Tracking</th>
+          <th>SKU Number</th>
+          <th>Creator</th>
+          <th>Creation Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Tickets injected here -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Admin ticket creation form -->
+  <form id="ticket-create-form" style="display:none;" aria-label="Create Ticket Form">
+    <h3>Create New Ticket</h3>
+    <div id="ticket-create-error" aria-live="assertive"></div>
+    <div class="row">
+      <div>
+        <label for="input-id">Service Order Number</label>
+        <input type="text" id="input-id" placeholder="e.g. SO-10006" required />
+      </div>
+      <div>
+        <label for="input-status">Status</label>
+        <select id="input-status" required>
+          <option value="">--Select Status--</option>
+          <option value="pending">Pending</option>
+          <option value="in progress">In Progress</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+          <option value="shipped">Shipped</option>
+        </select>
+      </div>
+      <div>
+        <label for="input-service-type">Service Type</label>
+        <input type="text" id="input-service-type" placeholder="e.g. Repair" required />
+      </div>
+      <div>
+        <label for="input-product">Product</label>
+        <input type="text" id="input-product" placeholder="e.g. Lithium Battery 51V" required />
+      </div>
+      <div>
+        <label for="input-tracking">Tracking</label>
+        <input type="text" id="input-tracking" placeholder="e.g. 1Z999AA123456789" />
+      </div>
+      <div>
+        <label for="input-sku-number">SKU Number</label>
+        <input type="text" id="input-sku-number" placeholder="e.g. LITH-51V-100AH" required />
+      </div>
+      <div>
+        <label for="input-creator">Creator</label>
+        <input type="text" id="input-creator" placeholder="e.g. John Zong" required />
+      </div>
+      <div>
+        <label for="input-creation-date">Creation Date</label>
+        <input type="date" id="input-creation-date" required />
+      </div>
+    </div>
+    <button type="submit">Create Ticket</button>
+  </form>
 </div>
 
 <script>
-// Simulated users data with roles
 const users = [
-  { id: 1, username: "alice", password: "pass123", role: "user" },
-  { id: 2, username: "bob", password: "pass456", role: "user" },
-  { id: 99, username: "admin", password: "adminpass", role: "admin" }
+  { id: 1, username: "alice", password: "pass123", name: "Alice", role: "user" },
+  { id: 2, username: "bob", password: "pass456", name: "Bob", role: "user" },
+  { id: 99, username: "admin", password: "adminpass", name: "John Zong", role: "admin" }
 ];
 
-// Simulated tickets data
 let tickets = [
-  { id: 101, userId: 1, title: "Issue with login", status: "open" },
-  { id: 102, userId: 1, title: "Page not loading", status: "in-progress" },
-  { id: 103, userId: 2, title: "Bug in form", status: "closed" },
-  { id: 104, userId: 2, title: "Feature request", status: "open" }
+  {
+    id: "SO-10001",
+    userId: 99,
+    status: "in progress",
+    serviceType: "Repair",
+    product: "Lithium Battery 51V",
+    tracking: "1Z999AA123456789",
+    skuNumber: "LITH-51V-100AH",
+    creator: "John Zong",
+    creationDate: "2025-07-15",
+  },
+  {
+    id: "SO-10002",
+    userId: 99,
+    status: "completed",
+    serviceType: "Replacement",
+    product: "Battery Management",
+    tracking: "1Z999AA987654321",
+    skuNumber: "BMS-24V-SMART",
+    creator: "John Zong",
+    creationDate: "2025-07-14",
+  },
+  {
+    id: "SO-10003",
+    userId: 99,
+    status: "pending",
+    serviceType: "Inspection",
+    product: "Battery Charger",
+    tracking: "—",
+    skuNumber: "CHR-36V-20A",
+    creator: "John Zong",
+    creationDate: "2025-07-16",
+  },
+  {
+    id: "SO-10004",
+    userId: 99,
+    status: "shipped",
+    serviceType: "Warranty Return",
+    product: "48V Golf Cart Pack",
+    tracking: "1Z999AA135792468",
+    skuNumber: "GOLF-48V-LFP",
+    creator: "John Zong",
+    creationDate: "2025-07-13",
+  },
+  {
+    id: "SO-10005",
+    userId: 99,
+    status: "cancelled",
+    serviceType: "Diagnostic",
+    product: "Inverter Module",
+    tracking: "—",
+    skuNumber: "INV-DC-1000W",
+    creator: "John Zong",
+    creationDate: "2025-07-12",
+  },
 ];
 
-// Create status label span
-function createStatusLabel(status) {
-  const span = document.createElement("span");
-  span.textContent = status;
-  span.className = "status " + status.replace(/\s+/g, "-").toLowerCase();
-  return span;
+function formatStatus(s) {
+  if (!s) return "";
+  return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-// Find username by userId
-function getUsernameById(userId) {
-  const user = users.find(u => u.id === userId);
-  return user ? user.username : "Unknown";
-}
-
-// Render tickets, behavior depends on role
 function renderTickets(user) {
   const tbody = document.querySelector("#tickets-table tbody");
   tbody.innerHTML = "";
 
-  // Admin sees all tickets; users see their own only
-  let ticketsToShow;
-  if (user.role === "admin") {
-    ticketsToShow = tickets;
-    document.getElementById("tickets-title").textContent = "All Tickets";
-    document.getElementById("actions-header").style.display = "table-cell";
-  } else {
-    ticketsToShow = tickets.filter(t => t.userId === user.id);
-    document.getElementById("tickets-title").textContent = "Your Tickets";
-    document.getElementById("actions-header").style.display = "none";
-  }
+  // Admin sees all tickets; users see their own
+  let ticketsToShow = user.role === "admin"
+    ? tickets
+    : tickets.filter(t => t.userId === user.id);
 
   if (ticketsToShow.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No tickets found.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#aaa;">No tickets found.</td></tr>`;
     return;
   }
 
   ticketsToShow.forEach(ticket => {
     const tr = document.createElement("tr");
-
-    // Ticket ID
-    const tdId = document.createElement("td");
-    tdId.textContent = ticket.id;
-    tr.appendChild(tdId);
-
-    // Username (for admin view)
-    const tdUser = document.createElement("td");
-    tdUser.textContent = getUsernameById(ticket.userId);
-    tr.appendChild(tdUser);
-
-    // Title
-    const tdTitle = document.createElement("td");
-    tdTitle.textContent = ticket.title;
-    tr.appendChild(tdTitle);
-
-    // Status
-    const tdStatus = document.createElement("td");
-    tdStatus.appendChild(createStatusLabel(ticket.status));
-    tr.appendChild(tdStatus);
-
-    // Actions cell (only for admin)
-    const tdActions = document.createElement("td");
-    if (user.role === "admin") {
-      const statusButton = document.createElement("button");
-      statusButton.textContent = "Update Status";
-      statusButton.style.padding = "5px 10px";
-      statusButton.onclick = () => {
-        // Cycle status: open -> in-progress -> closed -> open
-        const statuses = ["open", "in-progress", "closed"];
-        const currentIndex = statuses.indexOf(ticket.status);
-        const nextIndex = (currentIndex + 1) % statuses.length;
-        ticket.status = statuses[nextIndex];
-        renderTickets(user); 
-      };
-      tdActions.appendChild(statusButton);
-    }
-    tr.appendChild(tdActions);
-
+    tr.innerHTML = `
+      <td>${ticket.id}</td>
+      <td>${formatStatus(ticket.status)}</td>
+      <td>${ticket.serviceType}</td>
+      <td>${ticket.product}</td>
+      <td>${ticket.tracking || "—"}</td>
+      <td>${ticket.skuNumber}</td>
+      <td>${ticket.creator}</td>
+      <td>${ticket.creationDate}</td>
+    `;
     tbody.appendChild(tr);
   });
 }
 
-// Login handler
-document.getElementById("login-form").addEventListener("submit", function (e) {
+document.getElementById("login-form").addEventListener("submit", function(e) {
   e.preventDefault();
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value;
 
   const user = users.find(u => u.username === username && u.password === password);
-
   if (user) {
     localStorage.setItem("loggedInUserId", user.id);
     localStorage.setItem("loggedInUsername", user.username);
     localStorage.setItem("loggedInUserRole", user.role);
+    localStorage.setItem("loggedInUserName", user.name);
     showDashboard(user);
   } else {
     document.getElementById("login-error").textContent = "Invalid username or password";
   }
 });
 
-// Show dashboard based on user role
 function showDashboard(user) {
   document.getElementById("login-section").style.display = "none";
   document.getElementById("dashboard").style.display = "block";
-  document.getElementById("display-username").textContent = user.username;
-  document.getElementById("display-role").textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1);
-
-  // Dark mode for admin
-  if (user.role === "admin") {
-    document.body.classList.add("admin-mode");
-  } else {
-    document.body.classList.remove("admin-mode");
-  }
+  document.body.style.background = "#111"; 
+  document.getElementById("welcome-msg").textContent = `Welcome, ${user.name}! (${formatStatus(user.role)})`;
 
   renderTickets(user);
+
+  // Show ticket creation form only for admin
+  const createForm = document.getElementById("ticket-create-form");
+  if (user.role === "admin") {
+    createForm.style.display = "block";
+  } else {
+    createForm.style.display = "none";
+  }
 }
 
-// Logout handler
 document.getElementById("logout-btn").addEventListener("click", () => {
-  localStorage.removeItem("loggedInUserId");
-  localStorage.removeItem("loggedInUsername");
-  localStorage.removeItem("loggedInUserRole");
-  document.getElementById("login-section").style.display = "block";
+  localStorage.clear();
   document.getElementById("dashboard").style.display = "none";
+  document.getElementById("login-section").style.display = "flex";
+  document.body.style.background = "linear-gradient(135deg, #222, #111)";
   document.getElementById("login-error").textContent = "";
   document.getElementById("login-form").reset();
-  document.body.classList.remove("admin-mode");
 });
 
-// On page load, check logged-in user session
+// Handle ticket creation by admin
+document.getElementById("ticket-create-form").addEventListener("submit", e => {
+  e.preventDefault();
+  const errorElem = document.getElementById("ticket-create-error");
+  errorElem.textContent = "";
+
+  // Gather inputs
+  const id = document.getElementById("input-id").value.trim();
+  const status = document.getElementById("input-status").value.trim().toLowerCase();
+  const serviceType = document.getElementById("input-service-type").value.trim();
+  const product = document.getElementById("input-product").value.trim();
+  const tracking = document.getElementById("input-tracking").value.trim() || "—";
+  const skuNumber = document.getElementById("input-sku-number").value.trim();
+  const creator = document.getElementById("input-creator").value.trim();
+  const creationDate = document.getElementById("input-creation-date").value;
+
+  // Basic validation
+  if (!id || !status || !serviceType || !product || !skuNumber || !creator || !creationDate) {
+    errorElem.textContent = "Please fill in all required fields.";
+    return;
+  }
+
+  // Check duplicate Service Order Number
+  if (tickets.some(t => t.id.toLowerCase() === id.toLowerCase())) {
+    errorElem.textContent = "Service Order Number already exists.";
+    return;
+  }
+
+  // Add ticket with userId = admin's id = 99 (fixed here)
+  const newTicket = {
+    id,
+    userId: 99,
+    status,
+    serviceType,
+    product,
+    tracking,
+    skuNumber,
+    creator,
+    creationDate,
+  };
+
+  tickets.push(newTicket);
+
+  // Clear form
+  document.getElementById("ticket-create-form").reset();
+
+  // Re-render ticket table for admin user (admin userId from localStorage)
+  const currentUserId = Number(localStorage.getItem("loggedInUserId"));
+  const currentUser = users.find(u => u.id === currentUserId);
+  if(currentUser) renderTickets(currentUser);
+});
+
+// Restore session on load
 window.onload = () => {
   const loggedInUserId = localStorage.getItem("loggedInUserId");
   const loggedInUsername = localStorage.getItem("loggedInUsername");
   const loggedInUserRole = localStorage.getItem("loggedInUserRole");
+  const loggedInUserName = localStorage.getItem("loggedInUserName");
 
-  if (loggedInUserId && loggedInUsername && loggedInUserRole) {
-    showDashboard({ 
+  if (loggedInUserId && loggedInUsername && loggedInUserRole && loggedInUserName) {
+    showDashboard({
       id: Number(loggedInUserId),
       username: loggedInUsername,
-      role: loggedInUserRole
+      role: loggedInUserRole,
+      name: loggedInUserName
     });
   }
 };
