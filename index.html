@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Simple Ticketing System</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    max-width: 700px;
+    margin: 20px auto;
+    background-color: #f5f5f5;
+    color: #333;
+  }
+
+  #login-section,
+  #dashboard {
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 5px;
+    background-color: white;
+  }
+
+  h2 {
+    margin-top: 0;
+  }
+
+  input[type=text],
+  input[type=password] {
+    width: 100%;
+    padding: 10px;
+    margin: 6px 0 12px 0;
+    box-sizing: border-box;
+  }
+
+  button {
+    padding: 10px 15px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background-color: #0056b3;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+
+  th,
+  td {
+    text-align: left;
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .status {
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: white;
+    display: inline-block;
+    text-transform: capitalize;
+  }
+
+  .status.open {
+    background-color: #28a745;
+  }
+
+  .status.in-progress {
+    background-color: #ffc107;
+    color: black;
+  }
+
+  .status.closed {
+    background-color: #6c757d;
+  }
+
+  #logout-btn {
+    float: right;
+    background-color: #dc3545;
+  }
+
+  /* Dark theme for admin */
+  body.admin-mode {
+    background-color: #121212;
+    color: #eee;
+  }
+
+  body.admin-mode #dashboard,
+  body.admin-mode #login-section {
+    background-color: #1e1e1e;
+    border-color: #444;
+  }
+
+  body.admin-mode table th,
+  body.admin-mode table td {
+    border-color: #444;
+  }
+
+  body.admin-mode button {
+    background-color: #1f6feb;
+  }
+
+  body.admin-mode button:hover {
+    background-color: #1158c7;
+  }
+</style>
+</head>
+<body>
+
+<div id="login-section">
+  <h2>Login</h2>
+  <form id="login-form">
+    <label>Username:</label>
+    <input type="text" id="username" autocomplete="username" required />
+    <label>Password:</label>
+    <input type="password" id="password" autocomplete="current-password" required />
+    <button type="submit">Login</button>
+  </form>
+  <p id="login-error" style="color: red;"></p>
+</div>
+
+<div id="dashboard" style="display:none;">
+  <h2>User Dashboard <button id="logout-btn">Logout</button></h2>
+  <p>Welcome, <span id="display-username"></span>! (<span id="display-role"></span>)</p>
+
+  <h3 id="tickets-title">Your Tickets</h3>
+  <table id="tickets-table" aria-label="Tickets">
+    <thead>
+      <tr>
+        <th>Ticket ID</th>
+        <th>User</th>
+        <th>Title</th>
+        <th>Status</th>
+        <th id="actions-header" style="display:none;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Tickets injected here -->
+    </tbody>
+  </table>
+</div>
+
+<script>
+// Simulated users data with roles
+const users = [
+  { id: 1, username: "alice", password: "pass123", role: "user" },
+  { id: 2, username: "bob", password: "pass456", role: "user" },
+  { id: 99, username: "admin", password: "adminpass", role: "admin" }
+];
+
+// Simulated tickets data
+let tickets = [
+  { id: 101, userId: 1, title: "Issue with login", status: "open" },
+  { id: 102, userId: 1, title: "Page not loading", status: "in-progress" },
+  { id: 103, userId: 2, title: "Bug in form", status: "closed" },
+  { id: 104, userId: 2, title: "Feature request", status: "open" }
+];
+
+// Create status label span
+function createStatusLabel(status) {
+  const span = document.createElement("span");
+  span.textContent = status;
+  span.className = "status " + status.replace(/\s+/g, "-").toLowerCase();
+  return span;
+}
+
+// Find username by userId
+function getUsernameById(userId) {
+  const user = users.find(u => u.id === userId);
+  return user ? user.username : "Unknown";
+}
+
+// Render tickets, behavior depends on role
+function renderTickets(user) {
+  const tbody = document.querySelector("#tickets-table tbody");
+  tbody.innerHTML = "";
+
+  // Admin sees all tickets; users see their own only
+  let ticketsToShow;
+  if (user.role === "admin") {
+    ticketsToShow = tickets;
+    document.getElementById("tickets-title").textContent = "All Tickets";
+    document.getElementById("actions-header").style.display = "table-cell";
+  } else {
+    ticketsToShow = tickets.filter(t => t.userId === user.id);
+    document.getElementById("tickets-title").textContent = "Your Tickets";
+    document.getElementById("actions-header").style.display = "none";
+  }
+
+  if (ticketsToShow.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No tickets found.</td></tr>`;
+    return;
+  }
+
+  ticketsToShow.forEach(ticket => {
+    const tr = document.createElement("tr");
+
+    // Ticket ID
+    const tdId = document.createElement("td");
+    tdId.textContent = ticket.id;
+    tr.appendChild(tdId);
+
+    // Username (for admin view)
+    const tdUser = document.createElement("td");
+    tdUser.textContent = getUsernameById(ticket.userId);
+    tr.appendChild(tdUser);
+
+    // Title
+    const tdTitle = document.createElement("td");
+    tdTitle.textContent = ticket.title;
+    tr.appendChild(tdTitle);
+
+    // Status
+    const tdStatus = document.createElement("td");
+    tdStatus.appendChild(createStatusLabel(ticket.status));
+    tr.appendChild(tdStatus);
+
+    // Actions cell (only for admin)
+    const tdActions = document.createElement("td");
+    if (user.role === "admin") {
+      const statusButton = document.createElement("button");
+      statusButton.textContent = "Update Status";
+      statusButton.style.padding = "5px 10px";
+      statusButton.onclick = () => {
+        // Cycle status: open -> in-progress -> closed -> open
+        const statuses = ["open", "in-progress", "closed"];
+        const currentIndex = statuses.indexOf(ticket.status);
+        const nextIndex = (currentIndex + 1) % statuses.length;
+        ticket.status = statuses[nextIndex];
+        renderTickets(user); 
+      };
+      tdActions.appendChild(statusButton);
+    }
+    tr.appendChild(tdActions);
+
+    tbody.appendChild(tr);
+  });
+}
+
+// Login handler
+document.getElementById("login-form").addEventListener("submit", function (e) {
+  e.preventDefault();
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value;
+
+  const user = users.find(u => u.username === username && u.password === password);
+
+  if (user) {
+    localStorage.setItem("loggedInUserId", user.id);
+    localStorage.setItem("loggedInUsername", user.username);
+    localStorage.setItem("loggedInUserRole", user.role);
+    showDashboard(user);
+  } else {
+    document.getElementById("login-error").textContent = "Invalid username or password";
+  }
+});
+
+// Show dashboard based on user role
+function showDashboard(user) {
+  document.getElementById("login-section").style.display = "none";
+  document.getElementById("dashboard").style.display = "block";
+  document.getElementById("display-username").textContent = user.username;
+  document.getElementById("display-role").textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+
+  // Dark mode for admin
+  if (user.role === "admin") {
+    document.body.classList.add("admin-mode");
+  } else {
+    document.body.classList.remove("admin-mode");
+  }
+
+  renderTickets(user);
+}
+
+// Logout handler
+document.getElementById("logout-btn").addEventListener("click", () => {
+  localStorage.removeItem("loggedInUserId");
+  localStorage.removeItem("loggedInUsername");
+  localStorage.removeItem("loggedInUserRole");
+  document.getElementById("login-section").style.display = "block";
+  document.getElementById("dashboard").style.display = "none";
+  document.getElementById("login-error").textContent = "";
+  document.getElementById("login-form").reset();
+  document.body.classList.remove("admin-mode");
+});
+
+// On page load, check logged-in user session
+window.onload = () => {
+  const loggedInUserId = localStorage.getItem("loggedInUserId");
+  const loggedInUsername = localStorage.getItem("loggedInUsername");
+  const loggedInUserRole = localStorage.getItem("loggedInUserRole");
+
+  if (loggedInUserId && loggedInUsername && loggedInUserRole) {
+    showDashboard({ 
+      id: Number(loggedInUserId),
+      username: loggedInUsername,
+      role: loggedInUserRole
+    });
+  }
+};
+</script>
+
+</body>
+</html>
