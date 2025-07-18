@@ -123,6 +123,18 @@
     border-bottom: 1px solid #333;
     white-space: nowrap;
   }
+  tbody button.delete-btn {
+    padding: 0.2rem 0.6rem;
+    background-color: #c62828;
+    border: none;
+    border-radius: 3px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  tbody button.delete-btn:hover {
+    background-color: #9e1e1e;
+  }
 
   /* Ticket creation form for admin */
   #ticket-create-form {
@@ -213,6 +225,7 @@
           <th>SKU Number</th>
           <th>Creator</th>
           <th>Creation Date</th>
+          <th id="actions-header" style="display:none;">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -344,13 +357,12 @@ function renderTickets(user) {
   const tbody = document.querySelector("#tickets-table tbody");
   tbody.innerHTML = "";
 
-  // Admin sees all tickets; users see their own
   let ticketsToShow = user.role === "admin"
     ? tickets
     : tickets.filter(t => t.userId === user.id);
 
   if (ticketsToShow.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#aaa;">No tickets found.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:#aaa;">No tickets found.</td></tr>`;
     return;
   }
 
@@ -365,7 +377,21 @@ function renderTickets(user) {
       <td>${ticket.skuNumber}</td>
       <td>${ticket.creator}</td>
       <td>${ticket.creationDate}</td>
+      ${
+        user.role === "admin" 
+          ? `<td><button class="delete-btn" aria-label="Delete ticket ${ticket.id}">Delete</button></td>`
+          : `<td></td>`
+      }
     `;
+    // Add delete handler for admin buttons
+    if (user.role === "admin") {
+      tr.querySelector(".delete-btn").addEventListener("click", () => {
+        if (confirm(`Are you sure you want to delete ticket ${ticket.id}?`)) {
+          tickets = tickets.filter(t => t.id !== ticket.id);
+          renderTickets(user);
+        }
+      });
+    }
     tbody.appendChild(tr);
   });
 }
@@ -395,12 +421,14 @@ function showDashboard(user) {
 
   renderTickets(user);
 
-  // Show ticket creation form only for admin
+  // Show/hide ticket creation form for admin only
   const createForm = document.getElementById("ticket-create-form");
   if (user.role === "admin") {
     createForm.style.display = "block";
+    document.getElementById("actions-header").style.display = "table-cell";
   } else {
     createForm.style.display = "none";
+    document.getElementById("actions-header").style.display = "none";
   }
 }
 
@@ -413,13 +441,11 @@ document.getElementById("logout-btn").addEventListener("click", () => {
   document.getElementById("login-form").reset();
 });
 
-// Handle ticket creation by admin
 document.getElementById("ticket-create-form").addEventListener("submit", e => {
   e.preventDefault();
   const errorElem = document.getElementById("ticket-create-error");
   errorElem.textContent = "";
 
-  // Gather inputs
   const id = document.getElementById("input-id").value.trim();
   const status = document.getElementById("input-status").value.trim().toLowerCase();
   const serviceType = document.getElementById("input-service-type").value.trim();
@@ -429,22 +455,19 @@ document.getElementById("ticket-create-form").addEventListener("submit", e => {
   const creator = document.getElementById("input-creator").value.trim();
   const creationDate = document.getElementById("input-creation-date").value;
 
-  // Basic validation
   if (!id || !status || !serviceType || !product || !skuNumber || !creator || !creationDate) {
     errorElem.textContent = "Please fill in all required fields.";
     return;
   }
 
-  // Check duplicate Service Order Number
   if (tickets.some(t => t.id.toLowerCase() === id.toLowerCase())) {
     errorElem.textContent = "Service Order Number already exists.";
     return;
   }
 
-  // Add ticket with userId = admin's id = 99 (fixed here)
   const newTicket = {
     id,
-    userId: 99,
+    userId: 99, // admin userId fixed
     status,
     serviceType,
     product,
@@ -455,17 +478,13 @@ document.getElementById("ticket-create-form").addEventListener("submit", e => {
   };
 
   tickets.push(newTicket);
-
-  // Clear form
   document.getElementById("ticket-create-form").reset();
 
-  // Re-render ticket table for admin user (admin userId from localStorage)
   const currentUserId = Number(localStorage.getItem("loggedInUserId"));
   const currentUser = users.find(u => u.id === currentUserId);
   if(currentUser) renderTickets(currentUser);
 });
 
-// Restore session on load
 window.onload = () => {
   const loggedInUserId = localStorage.getItem("loggedInUserId");
   const loggedInUsername = localStorage.getItem("loggedInUsername");
