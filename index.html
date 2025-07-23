@@ -182,11 +182,11 @@
   </form>
 </div>
 
-<script>
 const users = [
   { id: 1, username: "alice", password: "pass123", name: "Alice", role: "user" },
   { id: 2, username: "bob", password: "pass456", name: "Bob", role: "user" },
-  {id: 3, username: "pape", password: "pape1", name: "Pape", role: "user" },
+  { id: 3, username: "pape", password: "pape1", name: "Pape", role: "user" },
+  { id: 4, username: "asim", password: "1953", name: "Asim", role: "user" },
   { id: 99, username: "admin", password: "adminpass", name: "John Zong", role: "admin" }
 ];
 
@@ -245,6 +245,71 @@ let tickets = [
     skuNumber: "INV-DC-1000W",
     creator: "John Zong",
     creationDate: "2025-07-12",
+  },
+  {
+    id: "SO-20001",
+    userId: 4,
+    status: "pending",
+    serviceType: "Repair",
+    product: "Starter Motor",
+    tracking: "ASMTRACK001",
+    skuNumber: "START-MOT-12V",
+    creator: "Asim",
+    creationDate: "2024-06-11",
+  },
+  {
+    id: "SO-20002",
+    userId: 4,
+    status: "in progress",
+    serviceType: "Inspection",
+    product: "Battery Charger",
+    tracking: "ASMTRACK002",
+    skuNumber: "CHR-48V-10A",
+    creator: "Asim",
+    creationDate: "2024-06-10",
+  }
+  id: "SO-40001",
+    userId: 2,
+    status: "in progress",
+    serviceType: "Repair",
+    product: "Battery Charger",
+    tracking: "BOBTRACK001",
+    skuNumber: "CHR-36V-20A",
+    creator: "Bob",
+    creationDate: "2024-06-08",
+  },
+  {
+    id: "SO-40002",
+    userId: 2,
+    status: "shipped",
+    serviceType: "Replacement",
+    product: "Inverter Module",
+    tracking: "BOBTRACK002",
+    skuNumber: "INV-DC-1000W",
+    creator: "Bob",
+    creationDate: "2024-06-07",
+  },
+  {
+    id: "SO-50001",
+    userId: 3,
+    status: "pending",
+    serviceType: "Inspection",
+    product: "Battery Pack",
+    tracking: "PAPETRACK001",
+    skuNumber: "BATT-PACK-72V",
+    creator: "Pape",
+    creationDate: "2024-06-12",
+  },
+  {
+    id: "SO-50002",
+    userId: 3,
+    status: "completed",
+    serviceType: "Warranty Return",
+    product: "Solar Panel Kit",
+    tracking: "PAPETRACK002",
+    skuNumber: "SOLARKIT-300W",
+    creator: "Pape",
+    creationDate: "2024-06-11",
   },
 ];
 
