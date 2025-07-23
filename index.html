@@ -5,14 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>ROYPow Ticketing System</title>
 <style>
-  * {
-    box-sizing: border-box;
+  :root {
+  --login-bg: url('images/roypow_ticketing_system_bkg.png');
+  --dashboard-bg: url('images/roypow_ticket_system_bkg.png');
+}
+  * { box-sizing: border-box; }
+  body, html { margin: 0; padding: 0; height: 100%; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; color: white;}
+
+  body.login-bg {
+    background: var(--login-bg) center center/cover no-repeat, linear-gradient(135deg, #222, #111);
+    background-blend-mode: overlay;
+    min-height: 100vh;
   }
-  body, html {
-    margin: 0; padding: 0; height: 100%;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    color: white;
-    background: linear-gradient(135deg, #222, #111);
+  body.dashboard-bg {
+    background: var(--dashboard-bg) center center/cover no-repeat, #111;
+    min-height: 100vh;
   }
   #login-section {
     height: 100vh;
@@ -22,6 +29,17 @@
     align-items: center;
     text-align: center;
   }
+  .login-logo {
+    width: 180px;       /* Adjust as needed */
+    height: 64px;       /* Adjust as needed */
+    object-fit: contain;
+    margin-bottom: 1.6rem;
+    margin-top: -2rem;
+    background: rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 0.4rem;
+    box-shadow: 0 4px 18px #1115;
+  }
   #login-section h1 {
     font-family: 'Orbitron', sans-serif;
     font-weight: 900;
@@ -30,60 +48,22 @@
     user-select: none;
     letter-spacing: 8px;
   }
-  #login-form {
-    width: 280px;
-  }
-  #login-form label {
-    display: block;
-    font-size: 0.85rem;
-    margin-bottom: 0.2rem;
-    text-align: left;
-  }
-  #login-form input[type="text"],
-  #login-form input[type="password"] {
-    width: 100%;
-    padding: 0.5rem 0.6rem;
-    margin-bottom: 1rem;
-    border: none;
-    border-radius: 3px;
-  }
-  #login-form button {
-    width: 100%;
-    background-color: #0b5ed7;
-    padding: 0.5rem;
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
-    color: white;
-    font-weight: 600;
-    font-size: 1rem;
-  }
-  #login-form button:hover {
-    background-color: #074db3;
-  }
-  #login-error {
-    color: #ff4d4d;
-    margin-top: 0.5rem;
-    height: 1.2rem;
-    font-size: 0.9rem;
-  }
-
+  #login-form { width: 280px; }
+  #login-form label { display: block; font-size: 0.85rem; margin-bottom: 0.2rem; text-align: left;}
+  #login-form input[type="text"], #login-form input[type="password"] { width: 100%; padding: 0.5rem 0.6rem; margin-bottom: 1rem; border: none; border-radius: 3px;}
+  #login-form button { width: 100%; background-color: #0b5ed7; padding: 0.5rem; border: none; border-radius: 3px; cursor: pointer; color: white; font-weight: 600; font-size: 1rem;}
+  #login-form button:hover { background-color: #074db3;}
+  #login-error { color: #ff4d4d; margin-top: 0.5rem; height: 1.2rem; font-size: 0.9rem; }
   #dashboard {
-    background-color: #111;
+    background: none !important;
     min-height: 100vh;
     padding: 2rem 3rem 4rem 3rem;
     display: none;
     position: relative;
     color: white;
   }
-  #dashboard h2 {
-    margin-top: 0;
-    font-weight: 700;
-  }
-  #dashboard p.welcome-text {
-    font-size: 1rem;
-    margin-bottom: 1.5rem;
-  }
+  #dashboard h2 { margin-top: 0; font-weight: 700; }
+  #dashboard p.welcome-text { font-size: 1rem; margin-bottom: 1.5rem;}
   #logout-btn {
     position: absolute;
     right: 30px;
@@ -97,106 +77,29 @@
     cursor: pointer;
     color: white;
   }
-  #logout-btn:hover {
-    background-color: #9e1e1e;
-  }
-
-  #tickets-container {
-    overflow-x: auto;
-    margin-top: 1rem;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  thead th {
-    border-bottom: 2px solid #444;
-    padding: 0.5rem 0.8rem;
-    font-weight: 600;
-    font-size: 0.9rem;
-    text-align: left;
-    white-space: nowrap;
-  }
-  tbody td {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.85rem;
-    border-bottom: 1px solid #333;
-    white-space: nowrap;
-  }
-  tbody button.delete-btn {
-    padding: 0.2rem 0.6rem;
-    background-color: #c62828;
-    border: none;
-    border-radius: 3px;
-    color: white;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  tbody button.delete-btn:hover {
-    background-color: #9e1e1e;
-  }
-
-  /* Ticket creation form for admin */
-  #ticket-create-form {
-    margin-top: 2rem;
-    background: #222;
-    padding: 1rem 1.5rem;
-    border-radius: 6px;
-    max-width: 900px;
-    color: #eee;
-  }
-  #ticket-create-form h3 {
-    margin-top: 0;
-    margin-bottom: 1rem;
-    font-weight: 700;
-  }
-  #ticket-create-form label {
-    display: block;
-    margin-top: 0.8rem;
-    font-weight: 600;
-  }
-  #ticket-create-form input[type="text"],
-  #ticket-create-form select,
-  #ticket-create-form input[type="date"] {
-    width: 100%;
-    padding: 0.35rem 0.4rem;
-    border-radius: 3px;
-    border: none;
-    margin-top: 0.15rem;
-    font-size: 0.9rem;
-    color: black;
-  }
-  #ticket-create-form .row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-  }
-  #ticket-create-form button {
-    margin-top: 1rem;
-    background-color: #0b5ed7;
-    padding: 0.6rem 1rem;
-    border-radius: 4px;
-    color: white;
-    border: none;
-    font-weight: 700;
-    cursor: pointer;
-    font-size: 1rem;
-  }
-  #ticket-create-form button:hover {
-    background-color: #074db3;
-  }
-  #ticket-create-error {
-    color: #ff4d4d;
-    margin-top: 0.4rem;
-    font-weight: 600;
-    min-height: 1.2rem;
-  }
+  #logout-btn:hover { background-color: #9e1e1e; }
+  #tickets-container { overflow-x: auto; margin-top: 1rem; }
+  table { width: 100%; border-collapse: collapse;}
+  thead th { border-bottom: 2px solid #444; padding: 0.5rem 0.8rem; font-weight: 600; font-size: 0.9rem; text-align: left; white-space: nowrap; }
+  tbody td { padding: 0.4rem 0.8rem; font-size: 0.85rem; border-bottom: 1px solid #333; white-space: nowrap;}
+  tbody button.delete-btn { padding: 0.2rem 0.6rem; background-color: #c62828; border: none; border-radius: 3px; color: white; font-weight: 600; cursor: pointer;}
+  tbody button.delete-btn:hover { background-color: #9e1e1e;}
+  #ticket-create-form { margin-top: 2rem; background: #222; padding: 1rem 1.5rem; border-radius: 6px; max-width: 900px; color: #eee;}
+  #ticket-create-form h3 { margin-top: 0; margin-bottom: 1rem; font-weight: 700;}
+  #ticket-create-form label { display: block; margin-top: 0.8rem; font-weight: 600;}
+  #ticket-create-form input[type="text"], #ticket-create-form select, #ticket-create-form input[type="date"] { width: 100%; padding: 0.35rem 0.4rem; border-radius: 3px; border: none; margin-top: 0.15rem; font-size: 0.9rem; color: black;}
+  #ticket-create-form .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;}
+  #ticket-create-form button { margin-top: 1rem; background-color: #0b5ed7; padding: 0.6rem 1rem; border-radius: 4px; color: white; border: none; font-weight: 700; cursor: pointer; font-size: 1rem;}
+  #ticket-create-form button:hover { background-color: #074db3; }
+  #ticket-create-error { color: #ff4d4d; margin-top: 0.4rem; font-weight: 600; min-height: 1.2rem;}
 </style>
 </head>
-<body>
+<body class="login-bg">
 
 <div id="login-section" role="main">
-  <h1>ROYPOW</h1>
+  <!-- LOGO START -->
+  <img class="login-logo" src="images/ROYPOW_logo.png" alt="ROYPow Logo" /> <!-- Set your logo path here -->
+  <!-- LOGO END -->
   <form id="login-form" aria-label="Login Form">
     <label for="username">Username</label>
     <input type="text" id="username" autocomplete="username" required />
@@ -228,13 +131,9 @@
           <th id="actions-header" style="display:none;">Actions</th>
         </tr>
       </thead>
-      <tbody>
-        <!-- Tickets injected here -->
-      </tbody>
+      <tbody><!-- Tickets injected here --></tbody>
     </table>
   </div>
-
-  <!-- Admin ticket creation form -->
   <form id="ticket-create-form" style="display:none;" aria-label="Create Ticket Form">
     <h3>Create New Ticket</h3>
     <div id="ticket-create-error" aria-live="assertive"></div>
@@ -415,9 +314,10 @@ document.getElementById("login-form").addEventListener("submit", function(e) {
 });
 
 function showDashboard(user) {
+  document.body.classList.remove('login-bg');
+  document.body.classList.add('dashboard-bg');
   document.getElementById("login-section").style.display = "none";
   document.getElementById("dashboard").style.display = "block";
-  document.body.style.background = "#111"; 
   document.getElementById("welcome-msg").textContent = `Welcome, ${user.name}! (${formatStatus(user.role)})`;
 
   renderTickets(user);
@@ -435,9 +335,10 @@ function showDashboard(user) {
 
 document.getElementById("logout-btn").addEventListener("click", () => {
   localStorage.clear();
+  document.body.classList.remove('dashboard-bg');
+  document.body.classList.add('login-bg');
   document.getElementById("dashboard").style.display = "none";
   document.getElementById("login-section").style.display = "flex";
-  document.body.style.background = "linear-gradient(135deg, #222, #111)";
   document.getElementById("login-error").textContent = "";
   document.getElementById("login-form").reset();
 });
